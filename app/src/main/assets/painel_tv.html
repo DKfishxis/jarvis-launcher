@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>J.A.R.V.I.S. TV Launcher</title>
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #ffffff;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
+        .grid { display: flex; gap: 20px; margin-top: 30px; }
+        .card {
+            background: #161b22;
+            border: 2px solid #30363d;
+            padding: 20px;
+            border-radius: 10px;
+            width: 200px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .card:focus, .card:hover {
+            border-color: #00ffcc;
+            background: #21262d;
+            transform: scale(1.05);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>J.A.R.V.I.S. TV</h1>
+    <p>Selecione a plataforma para abrir direto no aplicativo oficial:</p>
+    
+    <div class="grid">
+        <div class="card" tabindex="0" onclick="location.href='jarvis://kick/coringa'">
+            <h3>Kick</h3>
+            <p>Canal Coringa</p>
+        </div>
+        <div class="card" tabindex="0" onclick="location.href='jarvis://twitch/loud_coringa'">
+            <h3>Twitch</h3>
+            <p>Canal Twitch</p>
+        </div>
+    </div>
+</body>
+</html>
