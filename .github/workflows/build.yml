@@ -52,7 +52,8 @@ jobs:
           body: |
             APK de teste do J.A.R.V.I.S.
        
-      - name: Upload APK,
-        uses: actions/upload-artifact@v4,
-        with: name: APK,
-        path: jarvis-launcher.apk
+      - name: Upload APK
+  uses: actions/upload-artifact@v4
+  with:
+    name: APK
+    path: jarvis-launcher.apk
