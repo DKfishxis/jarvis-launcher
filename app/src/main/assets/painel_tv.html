@@ -14,81 +14,63 @@
   }
   body {
     background: radial-gradient(ellipse at 50% 0%, #4a120b 0%, #240805 45%, #090304 90%);
-    display: flex; flex-direction: column;
   }
 
   /* ---------- Cabeçalho ---------- */
   header {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 1.5vh 3vw;
-    border-bottom: 0.15vh solid rgba(255, 193, 7, 0.25);
-    background: rgba(10, 2, 3, 0.6);
-  }
-  .brand-area { display: flex; align-items: center; gap: 1.5vw; }
-  .reactor-icon {
-    width: 3.5vh; height: 3.5vh; border-radius: 50%;
-    background: radial-gradient(circle, #00e5ff 0%, #007acc 70%, #001a33 100%);
-    box-shadow: 0 0 1.5vh #00e5ff;
+    padding: 1.5vh 3vw 0.5vh 3vw;
+    height: 12vh;
   }
   .brand {
-    font-size: 2.6vh; letter-spacing: 0.4vh;
+    font-size: 2.8vh; letter-spacing: 0.5vh;
     color: #ffd54f;
-    text-shadow: 0 0 1.2vh rgba(255, 179, 0, 0.65);
+    text-shadow: 0 0 1.5vh rgba(255, 179, 0, 0.65);
     font-weight: 600;
   }
   .brand small {
-    display: block; font-size: 1.3vh; letter-spacing: .25vh;
-    color: #00e5ff; margin-top: .1vh; font-weight: 500;
+    display: block; font-size: 1.4vh; letter-spacing: .3vh;
+    color: #ff5252; margin-top: .2vh; font-weight: 500;
   }
-  .clock { text-align: right; font-size: 3.2vh; font-weight: 300; color: #fff8e1; }
-  .clock small { display: block; font-size: 1.4vh; color: #ffca28; }
+  .clock { text-align: right; font-size: 3.5vh; font-weight: 300; color: #fff8e1; }
+  .clock small { display: block; font-size: 1.6vh; color: #ffca28; }
 
-  /* ---------- Corpo do Painel com Seções ---------- */
-  #main-container {
-    flex: 1; padding: 2vh 3vw;
-    overflow-y: auto; display: flex; flex-direction: column; gap: 2vh;
+  /* ---------- Grade principal retangular original ---------- */
+  #featured {
+    display: flex; flex-wrap: wrap; justify-content: center; align-content: center;
+    padding: 1vh 2vw;
+    height: 85vh;
   }
-  .section-title {
-    font-size: 1.8vh; letter-spacing: 0.3vh; color: #00e5ff;
-    text-shadow: 0 0 1vh rgba(0, 229, 255, 0.5);
-    margin-bottom: 1vh; display: flex; align-items: center; gap: 1vw;
-    font-weight: 600; border-left: 0.4vh solid #00e5ff; padding-left: 1vw;
-  }
-  .grid-section {
-    display: flex; flex-wrap: wrap; gap: 1.5vw;
-  }
-
-  /* ---------- Cards dos Apps ---------- */
   .card {
-    width: 45vw; height: 11vh; 
-    display: flex; align-items: center; padding: 0 2vw;
-    background: linear-gradient(135deg, rgba(211, 47, 47, 0.18), rgba(25, 5, 5, 0.8));
-    border: 0.22vh solid rgba(255, 193, 7, 0.35);
-    border-radius: 1.5vh;
+    width: 21vw; height: 36vh; margin: 0.8vh 1vw;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(155deg, rgba(211, 47, 47, 0.22), rgba(255, 179, 0, 0.12) 60%, rgba(25, 5, 5, 0.65));
+    border: 0.25vh solid rgba(255, 193, 7, 0.45);
+    border-radius: 1.8vh;
     color: inherit; font: inherit; cursor: pointer; outline: none;
-    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
   .card .icon {
-    width: 6.5vh; height: 6.5vh; object-fit: contain; border-radius: 1.2vh;
+    width: 14vh; height: 14vh; object-fit: contain; border-radius: 2vh;
     display: flex; align-items: center; justify-content: center;
-    font-size: 4vh; color: #ffd54f; flex-shrink: 0;
+    font-size: 6vh; color: #ffd54f;
   }
   .card .label {
-    margin-left: 2vw; font-size: 2.2vh; letter-spacing: .1vh;
-    color: #fff8e1; font-weight: 500;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: 1.5vh; font-size: 2.4vh; letter-spacing: .15vh;
+    color: #fff8e1;
+    text-shadow: 0 0.2vh 0.6vh rgba(0, 0, 0, 0.8);
   }
   .card.missing { opacity: .55; }
-  .card.missing .label::after { content: " (não instalado)"; font-size: 1.4vh; color: #ff8a80; }
+  .card.missing .label::after { content: " (não instalado)"; font-size: 1.5vh; color: #ff8a80; }
 
-  /* Foco do controle (estilo Reator Arc + Dourado) */
+  /* Foco do controle (Reator Arc ciano + dourado) */
   .card:focus, .tile:focus {
-    border-color: #00e5ff;
-    box-shadow: 0 0 2.5vh rgba(0, 229, 255, 0.8), inset 0 0 1.5vh rgba(255, 193, 7, 0.3);
-    -webkit-transform: scale(1.03); transform: scale(1.03);
-    background: linear-gradient(135deg, rgba(0, 229, 255, 0.25), rgba(40, 10, 15, 0.9));
+    border-color: #ffe082;
+    box-shadow: 0 0 3vh rgba(255, 193, 7, 0.85), inset 0 0 2vh rgba(0, 229, 255, 0.35);
+    -webkit-transform: scale(1.05); transform: scale(1.05);
+    background: linear-gradient(155deg, rgba(229, 57, 53, 0.45), rgba(255, 193, 7, 0.30));
   }
-  .card.all svg { width: 6.5vh; height: 6.5vh; fill: #00e5ff; }
+  .card.all svg { width: 14vh; height: 14vh; fill: #ffd54f; }
 
   /* ---------- Gaveta "Todos os Apps" ---------- */
   #drawer {
@@ -103,18 +85,18 @@
     color: #ffd54f; font-weight: 500;
   }
   #drawer .hint { font-size: 1.6vh; color: #ffab91; margin-left: 1vw; }
-  #grid { display: flex; flex-wrap: wrap; margin-top: 2vh; gap: 1vw; }
+  #grid { display: flex; flex-wrap: wrap; margin-top: 2vh; }
   .tile {
-    width: 22vw; height: 16vh; 
+    width: 14vw; height: 21vh; margin: 0.8vh 0.8vw;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     background: linear-gradient(160deg, rgba(183, 28, 28, 0.18), rgba(255, 179, 0, 0.08));
     border: 0.2vh solid rgba(255, 193, 7, 0.3); border-radius: 1.5vh;
     color: inherit; font: inherit; cursor: pointer; outline: none; padding: 1vh;
     transition: transform .12s ease, box-shadow .12s ease;
   }
-  .tile img { width: 7vh; height: 7vh; object-fit: contain; }
+  .tile img { width: 8.5vh; height: 8.5vh; object-fit: contain; }
   .tile span {
-    margin-top: 1vh; font-size: 1.6vh; text-align: center; width: 100%;
+    margin-top: 1.2vh; font-size: 1.8vh; text-align: center; width: 100%;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     color: #fff8e1;
   }
@@ -124,20 +106,11 @@
 <body>
 
 <header>
-  <div class="brand-area">
-    <div class="reactor-icon"></div>
-    <div class="brand">MARK XLII — CENTRAL TV<small>SISTEMA J.A.R.V.I.S. ATIVO</small></div>
-  </div>
+  <div class="brand">J.A.R.V.I.S.<small>MARK XLII</small></div>
   <div class="clock"><span id="time">--:--</span><small id="date"></small></div>
 </header>
 
-<div id="main-container">
-  <div class="section-title">⚡ PLATAFORMAS DE LIVE & VÍDEO</div>
-  <div class="grid-section" id="section-live"></div>
-
-  <div class="section-title" id="title-system" style="margin-top: 1vh;">🛡️ CONTROLE DO SISTEMA</div>
-  <div class="grid-section" id="section-system"></div>
-</div>
+<div id="featured"></div>
 
 <div id="drawer">
   <h2>TODOS OS APPS</h2>
@@ -148,22 +121,18 @@
 
 <script>
 (function () {
-  // Apps divididos nas seções exatas da sua foto
-  var LIVE_APPS = [
-    { pkg: 'com.kick.mobile',                  name: 'Kick' },
+  // Lista atualizada com os pacotes oficiais, incluindo UniTV corrigido e a Play Store
+  var FEATURED = [
     { pkg: 'tv.twitch.android.app',            name: 'Twitch' },
+    { pkg: 'com.kick.mobile',                  name: 'Kick' },
+    { pkg: 'com.unitvnet.tvvod',               name: 'UniTV' },
     { pkg: 'com.google.android.youtube.tv',    name: 'YouTube' },
-    { pkg: 'comunitvnet.tvvod',               name: 'UniTV' },
-    { pkg: 'com.instantbits.cast.receiver',    name: 'Web Video Cast' }
-  ];
-
-  var SYSTEM_APPS = [
-    { pkg: 'all_apps',                         name: 'Meus Apps Instalados', isSpecial: true },
+    { pkg: 'com.instantbits.cast.receiver',    name: 'Web Video Cast' },
+    { pkg: 'com.android.vending',              name: 'Play Store' },
     { pkg: 'com.android.settings',             name: 'Configurações' }
   ];
 
-  var liveEl = document.getElementById('section-live');
-  var systemEl = document.getElementById('section-system');
+  var featuredEl = document.getElementById('featured');
   var drawerEl = document.getElementById('drawer');
   var gridEl = document.getElementById('grid');
   var emptyEl = document.getElementById('empty');
@@ -199,11 +168,9 @@
     var byPkg = {};
     (data || []).forEach(function (f) { byPkg[f.pkg] = f; });
     var hadFocus = document.activeElement && document.activeElement.getAttribute('data-pkg');
-    liveEl.innerHTML = '';
-    systemEl.innerHTML = '';
+    featuredEl.innerHTML = '';
 
-    // Renderiza seção Live & Vídeo
-    LIVE_APPS.forEach(function (app) {
+    FEATURED.forEach(function (app) {
       var info = byPkg[app.pkg];
       var btn = document.createElement('button');
       btn.className = 'card focusable';
@@ -214,38 +181,23 @@
       lb.className = 'label'; lb.textContent = app.name;
       btn.appendChild(lb);
       btn.onclick = function () { launch(app.pkg); };
-      liveEl.appendChild(btn);
+      featuredEl.appendChild(btn);
     });
 
-    // Renderiza seção Sistema (incluindo o botão "Meus Apps Instalados")
-    SYSTEM_APPS.forEach(function (app) {
-      var btn = document.createElement('button');
-      btn.setAttribute('data-pkg', app.pkg);
-      if (app.isSpecial) {
-        btn.className = 'card all focusable';
-        btn.innerHTML =
-          '<div class="icon"><svg viewBox="0 0 24 24"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/>' +
-          '<circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>' +
-          '<circle cx="5" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg></div>' +
-          '<div class="label">' + app.name + '</div>';
-        btn.onclick = openDrawer;
-        allBtn = btn;
-      } else {
-        var info = byPkg[app.pkg];
-        btn.className = 'card focusable';
-        if (info && info.installed === false) btn.classList.add('missing');
-        btn.appendChild(makeIconNode(info && info.icon, app.name));
-        var lb = document.createElement('div');
-        lb.className = 'label'; lb.textContent = app.name;
-        btn.appendChild(lb);
-        btn.onclick = function () { launch(app.pkg); };
-      }
-      systemEl.appendChild(btn);
-    });
+    // Botão FIXO na última posição: Todos os Apps
+    allBtn = document.createElement('button');
+    allBtn.className = 'card all focusable';
+    allBtn.innerHTML =
+      '<svg viewBox="0 0 24 24"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/>' +
+      '<circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>' +
+      '<circle cx="5" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg>' +
+      '<div class="label">Todos os Apps</div>';
+    allBtn.onclick = openDrawer;
+    featuredEl.appendChild(allBtn);
 
     if (!drawerEl.classList.contains('open')) {
-      var restore = hadFocus && document.querySelector('[data-pkg="' + hadFocus + '"]');
-      (restore || document.querySelector('.focusable')).focus();
+      var restore = hadFocus && featuredEl.querySelector('[data-pkg="' + hadFocus + '"]');
+      (restore || featuredEl.querySelector('.focusable')).focus();
     }
   }
 
@@ -276,17 +228,11 @@
   }
 
   window.onAppsLoaded = function (payload) {
-    var allFeaturedPkgs = LIVE_APPS.concat(SYSTEM_APPS)
-      .filter(function(a) { return !a.isSpecial; })
-      .map(function(a) { return a.pkg; });
-    
-    // Filtra dados recebidos
     renderFeatured(payload.featured);
     var wasOpen = drawerEl.classList.contains('open');
     renderAll(payload.all);
     if (wasOpen) { var f = gridEl.querySelector('.focusable'); if (f) f.focus(); }
   };
-
   window.jarvisBack = function () {
     if (drawerEl.classList.contains('open')) closeDrawer();
   };
@@ -294,9 +240,7 @@
 
   function requestApps() {
     if (hasBridge) {
-      var pkgs = LIVE_APPS.concat(SYSTEM_APPS)
-        .filter(function(a) { return !a.isSpecial; })
-        .map(function(a) { return a.pkg; });
+      var pkgs = FEATURED.map(function (a) { return a.pkg; });
       window.Jarvis.requestApps(JSON.stringify(pkgs));
     }
   }
@@ -304,7 +248,7 @@
   function scope() { return drawerEl.classList.contains('open') ? drawerEl : featuredEl; }
 
   function move(dir) {
-    var list = [].slice.call(document.querySelectorAll((drawerEl.classList.contains('open') ? '#drawer' : '#main-container') + ' .focusable'));
+    var list = [].slice.call(scope().querySelectorAll('.focusable'));
     if (!list.length) return;
     var cur = document.activeElement;
     if (list.indexOf(cur) < 0) { list[0].focus(); return; }
