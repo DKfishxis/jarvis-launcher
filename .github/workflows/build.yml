@@ -23,8 +23,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Instalar SDK e Aceitar Licenças
+        run: |
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          echo y | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;32.0.0" "platforms;android-32"
 
       - name: Gradle 8.5
         uses: gradle/actions/setup-gradle@v4
