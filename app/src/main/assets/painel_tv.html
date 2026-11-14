@@ -63,14 +63,13 @@
   .card.missing { opacity: .55; }
   .card.missing .label::after { content: " (não instalado)"; font-size: 1.5vh; color: #ff8a80; }
 
-  /* Foco do controle (Reator Arc ciano + dourado) */
+    /* Foco do controle: Borda e brilho azul neon do Reator Arc combinado com dourado */
   .card:focus, .tile:focus {
-    border-color: #ffe082;
-    box-shadow: 0 0 3vh rgba(255, 193, 7, 0.85), inset 0 0 2vh rgba(0, 229, 255, 0.35);
+    border-color: #00e5ff;
+    box-shadow: 0 0 3.5vh rgba(0, 229, 255, 0.9), inset 0 0 2vh rgba(0, 229, 255, 0.4);
     -webkit-transform: scale(1.05); transform: scale(1.05);
-    background: linear-gradient(155deg, rgba(229, 57, 53, 0.45), rgba(255, 193, 7, 0.30));
+    background: linear-gradient(155deg, rgba(0, 229, 255, 0.3), rgba(211, 47, 47, 0.3));
   }
-  .card.all svg { width: 14vh; height: 14vh; fill: #ffd54f; }
 
   /* ---------- Gaveta "Todos os Apps" ---------- */
   #drawer {
@@ -125,7 +124,7 @@
   var FEATURED = [
     { pkg: 'tv.twitch.android.app',            name: 'Twitch' },
     { pkg: 'com.kick.mobile',                  name: 'Kick' },
-    { pkg: 'com.unitvnet.tvvod',               name: 'UniTV' },
+    { pkg: 'com.unitvnet.tvod',               name: 'UniTV' },
     { pkg: 'com.google.android.youtube.tv',    name: 'YouTube' },
     { pkg: 'com.instantbits.cast.receiver',    name: 'Web Video Cast' },
     { pkg: 'com.android.vending',              name: 'Play Store' },
