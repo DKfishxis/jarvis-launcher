@@ -102,14 +102,15 @@
 <script>
 (function () {
   // ===== ORDEM EXATA DOS DESTAQUES (edite aqui se precisar) =====
-  var FEATURED = [
+    var FEATURED = [
     { pkg: 'tv.twitch.android.app',            name: 'Twitch' },
     { pkg: 'com.kick.mobile',                  name: 'Kick' },
-    { pkg: 'com.unitvnet.tvvod',               name: 'UniTV' },
+    { pkg: 'com.unitvnet.tvvod',               name: 'UniTV' }, // <- Atualizado aqui
     { pkg: 'com.google.android.youtube.tv',    name: 'YouTube' },
     { pkg: 'com.instantbits.cast.receiver',    name: 'Web Video Cast' },
     { pkg: 'com.android.settings',             name: 'Configurações' }
   ];
+
 
   var featuredEl = document.getElementById('featured');
   var drawerEl = document.getElementById('drawer');
