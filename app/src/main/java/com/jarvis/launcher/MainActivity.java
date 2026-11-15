@@ -116,7 +116,7 @@ public class MainActivity extends Activity {
                 dr.draw(canvas);
             }
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            bmp.compress(Bitmap.Format.PNG, 80, bos);
+            bmp.compress(Bitmap.CompressFormat.PNG, 80, bos);
             return "data:image/png;base64," + Base64.encodeToString(bos.toByteArray(), Base64.NO_WRAP);
         } catch (Exception e) {
             return "";
