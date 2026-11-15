@@ -1,5 +1,6 @@
 package com.jarvis.launcher;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -12,7 +13,6 @@ import android.util.Base64;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     private WebView webView;
 
     @Override
@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         
-        // Ponte de comunicação com o HTML
         webView.addJavascriptInterface(new WebAppInterface(), "Jarvis");
 
         webView.setWebViewClient(new WebViewClient() {
@@ -45,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(webView);
     }
 
-    // Intercepta o botão Home para garantir que o Jarvis responda a ele
     @Override
     public void onBackPressed() {
         webView.evaluateJavascript("if(window.jarvisBack) { window.jarvisBack(); }", null);
@@ -87,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 JSONArray allArray = new JSONArray();
+                JSONArray featuredArray = new JSONArray();
+
                 for (ResolveInfo ri : allApps) {
                     String pkg = ri.activityInfo.packageName;
                     String name = ri.loadLabel(pm).toString();
@@ -100,11 +100,15 @@ public class MainActivity extends AppCompatActivity {
                     obj.put("pkg", pkg);
                     obj.put("name", name);
                     obj.put("icon", iconBase64);
+                    obj.put("installed", true);
+                    
                     allArray.put(obj);
+                    featuredArray.put(obj);
                 }
 
                 JSONObject payload = new JSONObject();
                 payload.put("all", allArray);
+                payload.put("featured", featuredArray);
 
                 runOnUiThread(() -> {
                     webView.evaluateJavascript("if(window.onAppsLoaded) { window.onAppsLoaded(" + payload.toString() + "); }", null);
