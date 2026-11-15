@@ -16,8 +16,6 @@ import android.webkit.WebViewClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends Activity {
@@ -36,7 +34,7 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                loadInstalledApps();
+                loadApps();
             }
         });
 
@@ -51,94 +49,75 @@ public class MainActivity extends Activity {
 
     public class WebAppInterface {
         @JavascriptInterface
-        public void launchApp(String packageName) {
+        public void launchApp(String pkg) {
             try {
-                Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
+                Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
                 if (intent != null) {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) {}
         }
 
         @JavascriptInterface
-        public void requestApps(String featuredJsonStr) {
-            loadInstalledApps();
+        public void requestApps(String json) {
+            loadApps();
         }
     }
 
-    private void loadInstalledApps() {
+    private void loadApps() {
         new Thread(() -> {
             try {
                 PackageManager pm = getPackageManager();
                 Intent intent = new Intent(Intent.ACTION_MAIN, null);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                List<ResolveInfo> allApps = pm.queryIntentActivities(intent, 0);
+                List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
 
-                Collections.sort(allApps, new Comparator<ResolveInfo>() {
-                    @Override
-                    public int compare(ResolveInfo a, ResolveInfo b) {
-                        return a.loadLabel(pm).toString().compareToIgnoreCase(b.loadLabel(pm).toString());
-                    }
-                });
-
-                JSONArray allArray = new JSONArray();
-                JSONArray featuredArray = new JSONArray();
-
-                for (ResolveInfo ri : allApps) {
+                JSONArray arr = new JSONArray();
+                for (ResolveInfo ri : list) {
                     String pkg = ri.activityInfo.packageName;
                     String name = ri.loadLabel(pm).toString();
-                    String iconBase64 = "";
+                    String iconB64 = "";
                     try {
-                        Drawable icon = ri.loadIcon(pm);
-                        iconBase64 = drawableToBase64(icon);
-                    } catch (Exception ignored) {}
+                        Drawable dr = ri.loadIcon(pm);
+                        iconB64 = drawableToBase64(dr);
+                    } catch (Exception e) {}
 
                     JSONObject obj = new JSONObject();
                     obj.put("pkg", pkg);
                     obj.put("name", name);
-                    obj.put("icon", iconBase64);
+                    obj.put("icon", iconB64);
                     obj.put("installed", true);
-                    
-                    allArray.put(obj);
-                    featuredArray.put(obj);
+                    arr.put(obj);
                 }
 
                 JSONObject payload = new JSONObject();
-                payload.put("all", allArray);
-                payload.put("featured", featuredArray);
+                payload.put("all", arr);
+                payload.put("featured", arr);
 
                 runOnUiThread(() -> {
                     webView.evaluateJavascript("if(window.onAppsLoaded) { window.onAppsLoaded(" + payload.toString() + "); }", null);
                 });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) {}
         }).start();
     }
 
-    private String drawableToBase64(Drawable drawable) {
+    private String drawableToBase64(Drawable dr) {
         try {
-            Bitmap bitmap;
-            if (drawable instanceof BitmapDrawable) {
-                bitmap = ((BitmapDrawable) drawable).getBitmap();
+            Bitmap bmp;
+            if (dr instanceof BitmapDrawable) {
+                bmp = ((BitmapDrawable) dr).getBitmap();
             } else {
-                int width = drawable.getIntrinsicWidth();
-                int height = drawable.getIntrinsicHeight();
-                if (width <= 0) width = 96;
-                if (height <= 0) height = 96;
-                bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-                Canvas canvas = new Canvas(bitmap);
-                drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-                drawable.draw(canvas);
+                int w = dr.getIntrinsicWidth() > 0 ? dr.getIntrinsicWidth() : 96;
+                int h = dr.getIntrinsicHeight() > 0 ? dr.getIntrinsicHeight() : 96;
+                bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bmp);
+                dr.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                dr.draw(canvas);
             }
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.Format.PNG, 80, byteArrayOutputStream);
-            byte[] byteArray = byteArrayOutputStream.toByteArray();
-            return "data:image/png;base64," + Base64.encodeToString(byteArray, Base64.NO_WRAP);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.Format.PNG, 80, bos);
+            return "data:image/png;base64," + Base64.encodeToString(bos.toByteArray(), Base64.NO_WRAP);
         } catch (Exception e) {
             return "";
         }
