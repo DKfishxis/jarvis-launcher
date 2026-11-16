@@ -37,7 +37,6 @@
     color: #80f3ff; margin-top: .4vh; font-weight: 600;
   }
   
-  /* Área do Relógio, Wi-Fi e Update agrupados no canto direito */
   .right-header {
     display: flex;
     align-items: center;
@@ -59,21 +58,59 @@
     font-weight: bold;
   }
 
-  /* Ícone de atualização minimalista no mesmo tom de azul da palavra Jarvis */
+  /* Só aparece se houver atualização, não é clicável */
   .update-indicator {
     color: #00e5ff;
-    cursor: pointer;
     text-shadow: 0 0 1vh rgba(0, 229, 255, 0.8);
-    display: flex;
+    display: none; /* Oculto por padrão, gerido via JS */
     align-items: center;
-    transition: transform 0.2s ease;
   }
-  .update-indicator:hover {
-    transform: scale(1.15);
+  .update-indicator.active {
+    display: flex;
   }
 
   .clock { text-align: right; font-size: 4.5vh; font-weight: 400; color: #ffffff; text-shadow: 0 0 2vh rgba(0, 229, 255, 0.8); }
   .clock small { display: block; font-size: 2.0vh; color: #80f3ff; font-weight: 600; }
+
+  /* ---------- Barra de Progresso de Download ---------- */
+  #download-progress-container {
+    display: none;
+    position: fixed;
+    top: 14vh;
+    left: 3.5vw;
+    right: 3.5vw;
+    background: rgba(5, 15, 30, 0.9);
+    border: 0.2vh solid rgba(0, 229, 255, 0.5);
+    border-radius: 1vh;
+    padding: 1.5vh 2vw;
+    z-index: 100;
+    box-shadow: 0 0 2vh rgba(0, 229, 255, 0.4);
+  }
+  #download-progress-container.open { display: block; }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.8vh;
+    color: #00e5ff;
+    margin-bottom: 0.8vh;
+    font-weight: 600;
+    letter-spacing: 0.1vh;
+  }
+  .progress-bar-bg {
+    width: 100%;
+    height: 1.2vh;
+    background: rgba(0, 229, 255, 0.15);
+    border-radius: 0.6vh;
+    overflow: hidden;
+    border: 0.1vh solid rgba(0, 229, 255, 0.3);
+  }
+  #progress-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: #00e5ff;
+    box-shadow: 0 0 1vh rgba(0, 229, 255, 0.9);
+    transition: width 0.3s ease;
+  }
 
   /* ---------- Grade principal retangular ---------- */
   #featured {
@@ -103,7 +140,6 @@
   .card.missing { opacity: .55; }
   .card.missing .label::after { content: " (não instalado)"; font-size: 1.5vh; color: #ff8a80; }
 
-  /* Foco do controle */
   .card:focus, .tile:focus {
     border-color: #00e5ff;
     box-shadow: 0 0 4vh rgba(0, 229, 255, 1), inset 0 0 2.5vh rgba(0, 229, 255, 0.5);
@@ -148,8 +184,8 @@
   <div class="brand">J.A.R.V.I.S.<small>MARK XXXIX - GEMINI</small></div>
   <div class="right-header">
     <div class="status-group">
-      <!-- Ícone de Download/Atualização Minimalista em Azul Neon -->
-      <div id="update-btn" class="update-indicator focusable" title="Atualizar Sistema" tabindex="0" onclick="triggerUpdate()">
+      <!-- Ícone não clicável que só aparece se houver atualização -->
+      <div id="update-badge" class="update-indicator" title="Atualização Disponível">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
           <polyline points="7 10 12 15 17 10"></polyline>
@@ -161,6 +197,17 @@
     <div class="clock"><span id="time">--:--</span><small id="date"></small></div>
   </div>
 </header>
+
+<!-- Barra de Progresso visual para o download -->
+<div id="download-progress-container">
+  <div class="progress-info">
+    <span id="progress-text">A transferir atualização do sistema...</span>
+    <span id="progress-percent">0%</span>
+  </div>
+  <div class="progress-bar-bg">
+    <div id="progress-bar-fill"></div>
+  </div>
+</div>
 
 <div id="featured"></div>
 
@@ -180,7 +227,7 @@
     { pkg: 'com.kick.mobile',                  name: 'Kick' },
     { pkg: 'tv.twitch.android.app',            name: 'Twitch' },
     { pkg: 'com.android.vending',              name: 'Play Store' },
-    { pkg: 'com.android.tv.settings',          name: 'Configurações' }
+    { pkg: 'com.android.settings',             name: 'Configurações' }
   ];
 
   var featuredEl = document.getElementById('featured');
@@ -190,15 +237,61 @@
   var hasBridge = (typeof window.Jarvis !== 'undefined');
   var allBtn = null;
 
+  // Ativa a barra de progresso e inicia o download inteligente via ponte nativa
   window.triggerUpdate = function() {
-    // URL direta para descarregar a nova versão do APK gerada no GitHub Releases
+    var progressContainer = document.getElementById('download-progress-container');
+    var progressFill = document.getElementById('progress-bar-fill');
+    var progressPercent = document.getElementById('progress-percent');
+    var progressText = document.getElementById('progress-text');
+    
+    progressContainer.classList.add('open');
+    progressFill.style.width = '0%';
+    progressPercent.textContent = '0%';
+
     var updateUrl = 'https://github.com/DKfishxis/jarvis-launcher/releases/latest/download/jarvis-launcher.apk';
+
     if (hasBridge && window.Jarvis.downloadAndInstall) {
       window.Jarvis.downloadAndInstall(updateUrl);
     } else {
       window.location.href = updateUrl;
     }
+
+    // Simulação visual fluída da barra de progresso enquanto transfere
+    var simulatedProgress = 0;
+    var interval = setInterval(function() {
+      simulatedProgress += 3;
+      if (simulatedProgress > 95) simulatedProgress = 95;
+      progressFill.style.width = simulatedProgress + '%';
+      progressPercent.textContent = simulatedProgress + '%';
+      if (simulatedProgress >= 95) {
+        clearInterval(interval);
+      }
+    }, 200);
   };
+
+  // Função chamada pelo Android quando o download estiver 100% concluído
+  window.onDownloadComplete = function() {
+    var progressFill = document.getElementById('progress-bar-fill');
+    var progressPercent = document.getElementById('progress-percent');
+    var progressText = document.getElementById('progress-text');
+    var progressContainer = document.getElementById('download-progress-container');
+
+    progressFill.style.width = '100%';
+    progressPercent.textContent = '100%';
+    progressText.textContent = 'Download concluído! A iniciar instalador...';
+
+    setTimeout(function() {
+      progressContainer.classList.remove('open');
+    }, 3000);
+  };
+
+  // Exemplo para demonstrar o badge de atualização (podes ligar à verificação de versão da API do GitHub futuramente)
+  function checkUpdates() {
+    var badge = document.getElementById('update-badge');
+    // Se quiseres testar o alerta ativo, basta adicionar a classe 'active'
+    // badge.classList.add('active'); 
+  }
+  checkUpdates();
 
   function updateNetworkStatus() {
     var wifiEl = document.getElementById('wifi-indicator');
@@ -292,7 +385,6 @@
     gridEl.innerHTML = '';
     emptyEl.style.display = (list && list.length) ? 'none' : 'block';
 
-    // Adicionar um tile especial de atualização dentro da gaveta de Todos os Apps
     var updateTile = document.createElement('button');
     updateTile.className = 'tile focusable';
     updateTile.innerHTML = '<div style="font-size:5vh; color:#00e5ff; display:flex; align-items:center; justify-content:center; height:8.5vh;">📥</div><span>Atualizar Sistema</span>';
