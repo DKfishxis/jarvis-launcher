@@ -20,7 +20,7 @@
     background-color: #050b14;
   }
 
-  /* ---------- Cabeçalho (Letras e números aumentados) ---------- */
+  /* ---------- Cabeçalho ---------- */
   header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 2.5vh 3.5vw 0.5vh 3.5vw;
@@ -36,6 +36,24 @@
     display: block; font-size: 1.8vh; letter-spacing: .4vh;
     color: #80f3ff; margin-top: .4vh; font-weight: 600;
   }
+  
+  /* Área do Relógio e Wi-Fi agrupados no canto direito */
+  .right-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .wifi-status {
+    font-size: 2.5vh;
+    color: #00e5ff;
+    text-shadow: 0 0 1vh rgba(0, 229, 255, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+  }
+
   .clock { text-align: right; font-size: 4.5vh; font-weight: 400; color: #ffffff; text-shadow: 0 0 2vh rgba(0, 229, 255, 0.8); }
   .clock small { display: block; font-size: 2.0vh; color: #80f3ff; font-weight: 600; }
 
@@ -67,7 +85,7 @@
   .card.missing { opacity: .55; }
   .card.missing .label::after { content: " (não instalado)"; font-size: 1.5vh; color: #ff8a80; }
 
-  /* Foco do controle: Borda e brilho azul neon do Reator Arc */
+  /* Foco do controle */
   .card:focus, .tile:focus {
     border-color: #00e5ff;
     box-shadow: 0 0 4vh rgba(0, 229, 255, 1), inset 0 0 2.5vh rgba(0, 229, 255, 0.5);
@@ -110,7 +128,10 @@
 
 <header>
   <div class="brand">J.A.R.V.I.S.<small>MARK XXXIX - GEMINI</small></div>
-  <div class="clock"><span id="time">--:--</span><small id="date"></small></div>
+  <div class="right-header">
+    <div id="wifi-indicator" class="wifi-status">📶</div>
+    <div class="clock"><span id="time">--:--</span><small id="date"></small></div>
+  </div>
 </header>
 
 <div id="featured"></div>
@@ -131,7 +152,7 @@
     { pkg: 'com.kick.mobile',                  name: 'Kick' },
     { pkg: 'tv.twitch.android.app',            name: 'Twitch' },
     { pkg: 'com.android.vending',              name: 'Play Store' },
-    { pkg: 'com.android.tv.settings',             name: 'Configurações' }
+    { pkg: 'com.android.tv.settings',          name: 'Configurações' }
   ];
 
   var featuredEl = document.getElementById('featured');
@@ -141,14 +162,43 @@
   var hasBridge = (typeof window.Jarvis !== 'undefined');
   var allBtn = null;
 
+  function updateNetworkStatus() {
+    var wifiEl = document.getElementById('wifi-indicator');
+    var online = navigator.onLine;
+    
+    if (!online) {
+      wifiEl.innerHTML = '📶 ❌'; // Sem conexão
+      wifiEl.style.color = '#ff5252';
+    } else {
+      var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (connection) {
+        var downlink = connection.downlink; // velocidade estimada em Mbps
+        var effectiveType = connection.effectiveType; // '2g', '3g', '4g'
+        
+        if (effectiveType === '2g' || (downlink && downlink < 1.0)) {
+          wifiEl.innerHTML = '📶 ⚠️'; // Internet ruim / lenta
+          wifiEl.style.color = '#ffab40';
+        } else {
+          wifiEl.innerHTML = '📶'; // Conectado e funcionando perfeitamente
+          wifiEl.style.color = '#00e5ff';
+        }
+      } else {
+        wifiEl.innerHTML = '📶'; // Conectado por padrão
+        wifiEl.style.color = '#00e5ff';
+      }
+    }
+  }
+
   function tick() {
     var d = new Date();
     var hh = ('0' + d.getHours()).slice(-2), mm = ('0' + d.getMinutes()).slice(-2);
     document.getElementById('time').textContent = hh + ':' + mm;
     document.getElementById('date').textContent =
       d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+    
+    updateNetworkStatus();
   }
-  tick(); setInterval(tick, 10000);
+  tick(); setInterval(tick, 5000);
 
   function launch(pkg) {
     if (hasBridge) { window.Jarvis.launchApp(pkg); }
