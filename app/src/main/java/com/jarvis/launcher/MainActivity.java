@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
 
         webView.loadUrl("file:///android_asset/painel_tv.html");
 
-        // Regista o recetor para detetar quando o download do update terminar
         onDownloadComplete = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
