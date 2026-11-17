@@ -58,6 +58,7 @@
     font-weight: bold;
   }
 
+  /* Indicador não clicável que só aparece se houver atualização */
   .update-indicator {
     color: #00e5ff;
     text-shadow: 0 0 1vh rgba(0, 229, 255, 0.8);
@@ -183,6 +184,7 @@
   <div class="brand">J.A.R.V.I.S.<small>MARK XXXIX - GEMINI</small></div>
   <div class="right-header">
     <div class="status-group">
+      <!-- Ícone não clicável que só aparece se houver atualização -->
       <div id="update-badge" class="update-indicator" title="Atualização Disponível">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -217,6 +219,9 @@
 
 <script>
 (function () {
+  // O GitHub Actions vai substituir automaticamente AUTO_DETECT pela tag da release
+  var CURRENT_VERSION = 'AUTO_DETECT';
+
   var FEATURED = [
     { pkg: 'com.unitvnet.tvod',                name: 'UniTV' },
     { pkg: 'com.google.android.youtube.tv',    name: 'YouTube' },
@@ -281,6 +286,21 @@
 
   function checkUpdates() {
     var badge = document.getElementById('update-badge');
+    if (CURRENT_VERSION === 'AUTO_DETECT') return;
+
+    fetch('https://api.github.com/repos/DKfishxis/jarvis-launcher/releases/latest')
+      .then(function(response) {
+        if (!response.ok) throw new Error('Erro ao verificar atualizações');
+        return response.json();
+      })
+      .then(function(data) {
+        if (data && data.tag_name && data.tag_name !== CURRENT_VERSION) {
+          badge.classList.add('active');
+        }
+      })
+      .catch(function(err) {
+        console.log('Verificação de update falhou:', err);
+      });
   }
   checkUpdates();
 
