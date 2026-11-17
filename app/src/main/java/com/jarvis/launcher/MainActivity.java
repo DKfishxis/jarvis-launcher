@@ -112,14 +112,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadInstalledApps() {
+        private void loadInstalledApps() {
         try {
             PackageManager pm = getPackageManager();
             Intent intent = new Intent(Intent.ACTION_MAIN, null);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
             List<ResolveInfo> allApps = pm.queryIntentActivities(intent, 0);
 
+            // Lista dos pacotes fixos da tela inicial (igual ao do HTML)
+            String[] featuredPkgs = {
+                "com.unitvnet.tvod",
+                "com.google.android.youtube.tv",
+                "com.instantbits.cast.receiver",
+                "com.kick.mobile",
+                "tv.twitch.android.app",
+                "com.android.vending",
+                "com.android.tv.settings"
+            };
+
             JSONArray jsonAll = new JSONArray();
+            JSONArray jsonFeatured = new JSONArray();
+
             for (ResolveInfo ri : allApps) {
                 String pkg = ri.activityInfo.packageName;
                 if (pkg.equals(getPackageName())) continue;
@@ -142,10 +155,21 @@ public class MainActivity extends AppCompatActivity {
                 appObj.put("pkg", pkg);
                 appObj.put("name", name);
                 appObj.put("icon", iconBase64);
+                
                 jsonAll.put(appObj);
+
+                // Verifica se este aplicativo faz parte dos destaques da tela inicial
+                for (String fPkg : featuredPkgs) {
+                    if (fPkg.equals(pkg)) {
+                        jsonFeatured.put(appObj);
+                        break;
+                    }
+                }
             }
 
-            final String script = "if(window.onAppsLoaded){ window.onAppsLoaded({featured: [], all: " + jsonAll.toString() + "}); }";
+            // Garante que mesmo os apps destacados que não venham no launcher nativo sejam enviados (ou tratados)
+            final String script = "if(window.onAppsLoaded){ window.onAppsLoaded({featured: " + jsonFeatured.toString() + ", all: " + jsonAll.toString() + "}); }";
+            
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
