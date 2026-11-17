@@ -1,8 +1,10 @@
 package com.jarvis.launcher;
 
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -24,12 +26,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
+    private BroadcastReceiver downloadReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +68,39 @@ public class MainActivity extends AppCompatActivity {
         });
 
         webView.loadUrl("file:///android_asset/painel_tv.html");
+
+        // Regista o recetor para concluir o download e iniciar a instalação do APK
+        downloadReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                if (downloadId != -1) {
+                    try {
+                        File downloadedFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "jarvis-launcher.apk");
+                        Intent installIntent = new Intent(Intent.ACTION_VIEW);
+                        Uri apkUri = Uri.fromFile(downloadedFile);
+                        installIntent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+                        installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        context.startActivity(installIntent);
+
+                        // Avisa o painel HTML que o download foi concluído a 100%
+                        webView.evaluateJavascript("if(window.onDownloadComplete){ window.onDownloadComplete(); }", null);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (downloadReceiver != null) {
+            unregisterReceiver(downloadReceiver);
+        }
     }
 
     public class WebAppInterface {
@@ -112,14 +149,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-        private void loadInstalledApps() {
+    private void loadInstalledApps() {
         try {
             PackageManager pm = getPackageManager();
             Intent intent = new Intent(Intent.ACTION_MAIN, null);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
             List<ResolveInfo> allApps = pm.queryIntentActivities(intent, 0);
 
-            // Lista dos pacotes fixos da tela inicial (igual ao do HTML)
+            // Lista dos pacotes fixos da tela inicial para preencher os cartões
             String[] featuredPkgs = {
                 "com.unitvnet.tvod",
                 "com.google.android.youtube.tv",
@@ -158,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 
                 jsonAll.put(appObj);
 
-                // Verifica se este aplicativo faz parte dos destaques da tela inicial
+                // Verifica se faz parte dos destaques e adiciona na lista correspondente
                 for (String fPkg : featuredPkgs) {
                     if (fPkg.equals(pkg)) {
                         jsonFeatured.put(appObj);
@@ -167,9 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            // Garante que mesmo os apps destacados que não venham no launcher nativo sejam enviados (ou tratados)
             final String script = "if(window.onAppsLoaded){ window.onAppsLoaded({featured: " + jsonFeatured.toString() + ", all: " + jsonAll.toString() + "}); }";
-            
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
