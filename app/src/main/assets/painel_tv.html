@@ -46,19 +46,11 @@
   .status-group {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
     font-size: 2.5vh;
   }
 
-  .wifi-status {
-    color: #00e5ff;
-    text-shadow: 0 0 1vh rgba(0, 229, 255, 0.8);
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-  }
-
-  /* Indicador não clicável que só aparece se houver atualização */
+  /* Ícone de atualização no topo */
   .update-indicator {
     color: #00e5ff;
     text-shadow: 0 0 1vh rgba(0, 229, 255, 0.8);
@@ -67,6 +59,19 @@
   }
   .update-indicator.active {
     display: flex;
+  }
+
+  .clock-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .wifi-status {
+    color: #00e5ff;
+    text-shadow: 0 0 1vh rgba(0, 229, 255, 0.8);
+    display: flex;
+    align-items: center;
   }
 
   .clock { text-align: right; font-size: 4.5vh; font-weight: 400; color: #ffffff; text-shadow: 0 0 2vh rgba(0, 229, 255, 0.8); }
@@ -184,17 +189,20 @@
   <div class="brand">J.A.R.V.I.S.<small>MARK XXXIX - GEMINI</small></div>
   <div class="right-header">
     <div class="status-group">
-      <!-- Ícone não clicável que só aparece se houver atualização -->
       <div id="update-badge" class="update-indicator" title="Atualização Disponível">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
           <polyline points="7 10 12 15 17 10"></polyline>
           <line x1="12" y1="15" x2="12" y2="3"></line>
         </svg>
       </div>
-      <div id="wifi-indicator" class="wifi-status">📶</div>
     </div>
-    <div class="clock"><span id="time">--:--</span><small id="date"></small></div>
+    <div class="clock-container">
+      <div id="wifi-indicator" class="wifi-status" title="Conectado">
+        <!-- Ícone dinâmico estilo One UI 7 injetado via script -->
+      </div>
+      <div class="clock"><span id="time">--:--</span><small id="date"></small></div>
+    </div>
   </div>
 </header>
 
@@ -219,7 +227,6 @@
 
 <script>
 (function () {
-  // O GitHub Actions vai substituir automaticamente AUTO_DETECT pela tag da release
   var CURRENT_VERSION = 'AUTO_DETECT';
 
   var FEATURED = [
@@ -309,11 +316,20 @@
     var online = navigator.onLine;
     
     if (!online) {
-      wifiEl.innerHTML = '📶 ❌';
-      wifiEl.style.color = '#ff5252';
+      // Estado: Sem conexão total (Mostra o Wi-Fi com um "X")
+      wifiEl.innerHTML = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ff5252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><path d="M5 12.859a10 10 0 0 1 14 0"></path><line x1="4" y1="4" x2="20" y2="20"></line></svg>';
+      wifiEl.title = 'Sem Conexão';
     } else {
-      wifiEl.innerHTML = '📶';
-      wifiEl.style.color = '#00e5ff';
+      // Estado Padrão One UI 7: Wi-Fi 5 com setinhas (↓↑) de tráfego ativas
+      wifiEl.innerHTML = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><path d="M5 12.859a10 10 0 0 1 14 0"></path><path d="M15 14l-3 3-3-3"></path><path d="M12 17v-6"></path><text x="17" y="8" font-size="7" fill="#00e5ff" stroke="none" font-weight="bold">5</text></svg>';
+      wifiEl.title = 'Conectado (Wi-Fi 5)';
+
+      // Valida se está conectado à rede mas sem acesso à internet real (Exclamação no lugar das setas)
+      fetch('https://api.github.com/repos/DKfishxis/jarvis-launcher/releases/latest', { method: 'HEAD', mode: 'no-cors' })
+        .catch(function() {
+          wifiEl.innerHTML = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffab91" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><path d="M5 12.859a10 10 0 0 1 14 0"></path><line x1="12" y1="13" x2="12" y2="15"></line><circle cx="12" cy="17.5" r="0.75" fill="#ffab91"></circle><text x="17" y="8" font-size="7" fill="#ffab91" stroke="none" font-weight="bold">5</text></svg>';
+          wifiEl.title = 'Conectado sem Internet';
+        });
     }
   }
 
