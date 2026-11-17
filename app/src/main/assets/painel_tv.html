@@ -58,11 +58,10 @@
     font-weight: bold;
   }
 
-  /* Só aparece se houver atualização, não é clicável */
   .update-indicator {
     color: #00e5ff;
     text-shadow: 0 0 1vh rgba(0, 229, 255, 0.8);
-    display: none; /* Oculto por padrão, gerido via JS */
+    display: none;
     align-items: center;
   }
   .update-indicator.active {
@@ -184,7 +183,6 @@
   <div class="brand">J.A.R.V.I.S.<small>MARK XXXIX - GEMINI</small></div>
   <div class="right-header">
     <div class="status-group">
-      <!-- Ícone não clicável que só aparece se houver atualização -->
       <div id="update-badge" class="update-indicator" title="Atualização Disponível">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -198,7 +196,6 @@
   </div>
 </header>
 
-<!-- Barra de Progresso visual para o download -->
 <div id="download-progress-container">
   <div class="progress-info">
     <span id="progress-text">A transferir atualização do sistema...</span>
@@ -227,7 +224,7 @@
     { pkg: 'com.kick.mobile',                  name: 'Kick' },
     { pkg: 'tv.twitch.android.app',            name: 'Twitch' },
     { pkg: 'com.android.vending',              name: 'Play Store' },
-    { pkg: 'com.android.settings',             name: 'Configurações' }
+    { pkg: 'com.android.tv.settings',          name: 'Configurações' }
   ];
 
   var featuredEl = document.getElementById('featured');
@@ -237,7 +234,6 @@
   var hasBridge = (typeof window.Jarvis !== 'undefined');
   var allBtn = null;
 
-  // Ativa a barra de progresso e inicia o download inteligente via ponte nativa
   window.triggerUpdate = function() {
     var progressContainer = document.getElementById('download-progress-container');
     var progressFill = document.getElementById('progress-bar-fill');
@@ -256,7 +252,6 @@
       window.location.href = updateUrl;
     }
 
-    // Simulação visual fluída da barra de progresso enquanto transfere
     var simulatedProgress = 0;
     var interval = setInterval(function() {
       simulatedProgress += 3;
@@ -269,7 +264,6 @@
     }, 200);
   };
 
-  // Função chamada pelo Android quando o download estiver 100% concluído
   window.onDownloadComplete = function() {
     var progressFill = document.getElementById('progress-bar-fill');
     var progressPercent = document.getElementById('progress-percent');
@@ -285,11 +279,8 @@
     }, 3000);
   };
 
-  // Exemplo para demonstrar o badge de atualização (podes ligar à verificação de versão da API do GitHub futuramente)
   function checkUpdates() {
     var badge = document.getElementById('update-badge');
-    // Se quiseres testar o alerta ativo, basta adicionar a classe 'active'
-    // badge.classList.add('active'); 
   }
   checkUpdates();
 
@@ -301,21 +292,8 @@
       wifiEl.innerHTML = '📶 ❌';
       wifiEl.style.color = '#ff5252';
     } else {
-      var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      if (connection) {
-        var downlink = connection.downlink;
-        var effectiveType = connection.effectiveType;
-        if (effectiveType === '2g' || (downlink && downlink < 1.0)) {
-          wifiEl.innerHTML = '📶 ⚠️';
-          wifiEl.style.color = '#ffab40';
-        } else {
-          wifiEl.innerHTML = '📶';
-          wifiEl.style.color = '#00e5ff';
-        }
-      } else {
-        wifiEl.innerHTML = '📶';
-        wifiEl.style.color = '#00e5ff';
-      }
+      wifiEl.innerHTML = '📶';
+      wifiEl.style.color = '#00e5ff';
     }
   }
 
@@ -335,13 +313,17 @@
   }
 
   function makeIconNode(src, name) {
-    if (src) {
+    if (src && src.startsWith('data:image')) {
       var img = document.createElement('img');
-      img.className = 'icon'; img.src = src; img.alt = name;
+      img.className = 'icon';
+      img.src = src;
+      img.alt = name;
       return img;
     }
     var ph = document.createElement('div');
-    ph.className = 'icon'; ph.textContent = name.charAt(0);
+    ph.className = 'icon';
+    ph.style.cssText = 'width:14vh; height:14vh; display:flex; align-items:center; justify-content:center; font-size:6vh; color:#00e5ff;';
+    ph.textContent = (name || '?').charAt(0);
     return ph;
   }
 
@@ -357,10 +339,15 @@
       btn.className = 'card focusable';
       btn.setAttribute('data-pkg', app.pkg);
       if (info && info.installed === false) btn.classList.add('missing');
-      btn.appendChild(makeIconNode(info && info.icon, app.name));
+      
+      var iconSrc = info ? info.icon : null;
+      btn.appendChild(makeIconNode(iconSrc, app.name));
+
       var lb = document.createElement('div');
-      lb.className = 'label'; lb.textContent = app.name;
+      lb.className = 'label'; 
+      lb.textContent = app.name;
       btn.appendChild(lb);
+      
       btn.onclick = function () { launch(app.pkg); };
       featuredEl.appendChild(btn);
     });
@@ -368,7 +355,7 @@
     allBtn = document.createElement('button');
     allBtn.className = 'card all focusable';
     allBtn.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="#00e5ff"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/>' +
+      '<svg viewBox="0 0 24 24" fill="#00e5ff" style="width:7vh; height:7vh;"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/>' +
       '<circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>' +
       '<circle cx="5" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg>' +
       '<div class="label">Todos os Apps</div>';
@@ -394,11 +381,23 @@
     (list || []).forEach(function (app) {
       var t = document.createElement('button');
       t.className = 'tile focusable';
-      var img = document.createElement('img');
-      if (app.icon) img.src = app.icon;
+      
+      if (app.icon && app.icon.startsWith('data:image')) {
+        var img = document.createElement('img');
+        img.src = app.icon;
+        t.appendChild(img);
+      } else {
+        var ph = document.createElement('div');
+        ph.className = 'icon';
+        ph.style.cssText = 'width:8.5vh; height:8.5vh; display:flex; align-items:center; justify-content:center; font-size:4vh; color:#00e5ff;';
+        ph.textContent = (app.name || '?').charAt(0);
+        t.appendChild(ph);
+      }
+
       var sp = document.createElement('span');
       sp.textContent = app.name;
-      t.appendChild(img); t.appendChild(sp);
+      t.appendChild(sp);
+      
       t.onclick = function () { launch(app.pkg); };
       gridEl.appendChild(t);
     });
@@ -409,6 +408,7 @@
     var first = gridEl.querySelector('.focusable');
     if (first) first.focus();
   }
+  
   function closeDrawer() {
     drawerEl.classList.remove('open');
     if (allBtn) allBtn.focus();
@@ -420,9 +420,11 @@
     renderAll(payload.all);
     if (wasOpen) { var f = gridEl.querySelector('.focusable'); if (f) f.focus(); }
   };
+  
   window.jarvisBack = function () {
     if (drawerEl.classList.contains('open')) closeDrawer();
   };
+  
   window.jarvisRefresh = function () { requestApps(); };
 
   function requestApps() {
