@@ -1,10 +1,8 @@
 package com.jarvis.launcher;
 
 import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -32,8 +30,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
-    private long downloadId = -1;
-    private BroadcastReceiver onDownloadComplete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,30 +64,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         webView.loadUrl("file:///android_asset/painel_tv.html");
-
-        onDownloadComplete = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                if (downloadId == id) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            webView.evaluateJavascript("if(window.onDownloadComplete){ window.onDownloadComplete(); }", null);
-                        }
-                    });
-                }
-            }
-        };
-        registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (onDownloadComplete != null) {
-            unregisterReceiver(onDownloadComplete);
-        }
     }
 
     public class WebAppInterface {
@@ -124,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
                 request.setTitle("J.A.R.V.I.S. Update");
-                request.setDescription("A transferir nova versão...");
+                request.setDescription("A transferir a nova versão...");
                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                 request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "jarvis-launcher.apk");
                 request.setAllowedOverMetered(true);
@@ -132,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
                 DownloadManager manager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
                 if (manager != null) {
-                    downloadId = manager.enqueue(request);
+                    manager.enqueue(request);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
